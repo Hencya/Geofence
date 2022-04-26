@@ -18,6 +18,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         if (intent.action == ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
+
             if (geofencingEvent.hasError()) {
                 val errorMessage =
                     GeofenceStatusCodes.getStatusCodeString(geofencingEvent.errorCode)
@@ -25,7 +26,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 sendNotification(context, errorMessage)
                 return
             }
+
             val geofenceTransition = geofencingEvent.geofenceTransition
+
             if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
                 val geofenceTransitionString =
                     when (geofenceTransition) {
@@ -33,8 +36,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                         Geofence.GEOFENCE_TRANSITION_DWELL -> "Anda telah di dalam area"
                         else -> "Invalid transition type"
                     }
+
                 val triggeringGeofences = geofencingEvent.triggeringGeofences
                 val requestId = triggeringGeofences[0].requestId
+
                 val geofenceTransitionDetails = "$geofenceTransitionString $requestId"
                 Log.i(TAG, geofenceTransitionDetails)
 
@@ -42,7 +47,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             } else {
                 val errorMessage = "Invalid transition type : $geofenceTransition"
                 Log.e(TAG, errorMessage)
-
                 sendNotification(context, errorMessage)
             }
         }
@@ -68,7 +72,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "GeofenceBroadcast"
         const val ACTION_GEOFENCE_EVENT = "GeofenceEvent"
-
         private const val CHANNEL_ID = "1"
         private const val CHANNEL_NAME = "Geofence Channel"
         private const val NOTIFICATION_ID = 1

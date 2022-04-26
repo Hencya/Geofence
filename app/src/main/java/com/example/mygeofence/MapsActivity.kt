@@ -30,38 +30,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-
     private lateinit var geofencingClient: GeofencingClient
 
     private val centerLat = -3.083462
     private val centerLng = 103.221383
-
-    //    private val centerLat = 37.4274745
-//    private val centerLng = -122.169719
     private val geofenceRadius = 400.0
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityMapsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
-
-    /**
-     * Manipulates the map once available. This callback is triggered
-     * when the map is ready to be used. This is where we can add
-     * markers or lines, add listeners or move the camera. In this
-     * case, we just add a marker near Sydney, Australia. If Google
-     * Play services is not installed on the device, the user will be
-     * prompted to install it inside the SupportMapFragment. This method
-     * will only be triggered once the user has installed Google Play
-     * services and returned to the app.
-     */
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -73,13 +46,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
         mMap.uiSettings.isZoomControlsEnabled = true
+
         val stanford = LatLng(centerLat, centerLng)
         mMap.addMarker(MarkerOptions().position(stanford).title("Stanford University"))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stanford, 15f))
+
         mMap.addCircle(
             CircleOptions()
                 .center(stanford)
@@ -93,6 +79,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         addGeofence()
     }
 
+
     private val requestBackgroundLocationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -102,7 +89,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+
     private val runningQOrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
 
     @TargetApi(Build.VERSION_CODES.Q)
     private val requestLocationPermissionLauncher =
@@ -118,12 +107,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+
     private fun checkPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
             permission
         ) == PackageManager.PERMISSION_GRANTED
     }
+
 
     @TargetApi(Build.VERSION_CODES.Q)
     private fun checkForegroundAndBackgroundLocationPermission(): Boolean {
@@ -137,6 +128,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return foregroundLocationApproved && backgroundPermissionApproved
     }
 
+
     @SuppressLint("MissingPermission")
     private fun getMyLocation() {
         if (checkForegroundAndBackgroundLocationPermission()) {
@@ -146,9 +138,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
     @SuppressLint("MissingPermission")
     private fun addGeofence() {
         geofencingClient = LocationServices.getGeofencingClient(this)
+
+
         val geofence = Geofence.Builder()
             .setRequestId("kampus")
             .setCircularRegion(
@@ -160,10 +155,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER)
             .setLoiteringDelay(5000)
             .build()
+
+
         val geofencingRequest = GeofencingRequest.Builder()
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofence(geofence)
             .build()
+
+
         geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnCompleteListener {
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
@@ -178,7 +177,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
     private fun showToast(text: String) {
         Toast.makeText(this@MapsActivity, text, Toast.LENGTH_SHORT).show()
     }
+
+
 }
+
